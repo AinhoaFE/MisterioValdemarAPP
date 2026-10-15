@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Misterio en la Mansión Valdemar</title>
+<style>
+:root{--bg:#0a0b10;--card:#14171f;--card2:#1b1f2a;--line:#2a2f3d;--txt:#ece6d6;--mut:#8b8fa0;--gold:#e8b84a;--neon:#35f2d0;--red:#ff4d6d;--grn:#4ade80;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(120% 60% at 50% 0,#1a1426 0,var(--bg) 60%) var(--bg);color:var(--txt);font-family:Georgia,"Times New Roman",serif;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column;max-width:560px;margin:0 auto}
+header{padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line)}
+h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.3px;color:var(--gold)}
+header small{display:block;color:var(--mut);font-size:12px;font-family:system-ui,sans-serif;margin-top:2px}
+.btn{font-family:system-ui,sans-serif;border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer}
+.btn:active{transform:scale(.97)}
+main{flex:1;overflow-y:auto;padding:14px 14px 18px;-webkit-overflow-scrolling:touch}
+.tab{display:none}.tab.on{display:block}
+nav{display:flex;border-top:1px solid var(--line);background:#0d0f16;padding-bottom:4px}
+nav button{flex:1;background:none;border:0;color:var(--mut);font:600 12px system-ui,sans-serif;padding:10px 4px 8px;min-height:58px;cursor:pointer}
+nav button span{display:block;font-size:22px;margin-bottom:2px}
+nav button.on{color:var(--neon);box-shadow:inset 0 2px 0 var(--neon)}
+.intro{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.5;margin-bottom:14px}
+.clue{width:100%;display:block;text-align:left;background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:16px;margin-bottom:10px;color:var(--txt);font:inherit;min-height:60px;cursor:pointer}
+.clue.locked{color:var(--neon);font:600 15px system-ui,sans-serif;border-color:#25594f}
+.clue.open{border:1px solid var(--line);border-left:3px solid var(--neon);cursor:default;animation:pop .35s}
+.clue .who{display:block;font:600 12px system-ui,sans-serif;color:var(--gold);margin-bottom:5px}
+.clue .t{font-size:16px;line-height:1.45}
+@keyframes pop{from{transform:scale(.96);opacity:.3}to{transform:none;opacity:1}}
+.hint{color:var(--mut);font:13px system-ui,sans-serif;margin:4px 2px 12px;line-height:1.4}
+.gt{font:700 14px system-ui,sans-serif;margin:16px 2px 8px;color:var(--gold)}
+.grid{display:grid;grid-template-columns:1.15fr 1fr 1fr 1fr;gap:5px}
+.grid div,.grid button{border-radius:10px;min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;font:600 11px system-ui,sans-serif;color:var(--mut);line-height:1.2;padding:2px}
+.grid .h{background:none;flex-direction:column;color:var(--txt)}
+.grid .h b{font-size:20px;font-weight:400}
+.grid button{background:var(--card);border:1px solid var(--line);font-size:22px;cursor:pointer;color:var(--txt)}
+.grid button.s1{background:#2b1620;border-color:var(--red)}
+.grid button.s2{background:#0f2a22;border-color:var(--grn);box-shadow:0 0 12px #4ade8040}
+.row{margin-bottom:16px}
+.row .lbl{font:700 14px system-ui,sans-serif;color:var(--gold);margin-bottom:8px}
+.chips{display:flex;gap:8px}
+.chip{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--txt);padding:12px 4px;min-height:84px;font:600 13px system-ui,sans-serif;cursor:pointer}
+.chip b{display:block;font-size:30px;font-weight:400;margin-bottom:4px}
+.chip.sel{border-color:var(--neon);background:#0e2a2a;box-shadow:0 0 14px #35f2d055;color:var(--neon)}
+.accuse{width:100%;margin-top:6px;background:linear-gradient(180deg,#f3c75a,#c9922a);color:#1a1200;border:0;border-radius:16px;padding:18px;font:800 17px system-ui,sans-serif;min-height:60px;box-shadow:0 6px 22px #e8b84a44;cursor:pointer}
+.accuse:disabled{opacity:.4;box-shadow:none}
+.accuse:active{transform:scale(.98)}
+.stat{text-align:center;color:var(--mut);font:13px system-ui,sans-serif;margin-top:14px}
+#ov{position:fixed;inset:0;background:#000000cc;display:none;align-items:center;justify-content:center;padding:24px;z-index:10}
+#ov.on{display:flex}
+.modal{background:var(--card2);border:1px solid var(--gold);border-radius:20px;padding:26px 22px;text-align:center;max-width:380px;width:100%;animation:pop .3s}
+.modal.bad{border-color:var(--red);animation:shake .4s}
+.modal .big{font-size:56px}
+.modal h2{margin:8px 0;font-size:22px;color:var(--gold)}
+.modal.bad h2{color:var(--red)}
+.modal p{font:15px/1.5 system-ui,sans-serif;color:var(--txt);margin:8px 0 18px}
+.modal .btn{width:100%;background:var(--gold);color:#1a1200}
+@keyframes shake{25%{transform:translateX(-10px)}50%{transform:translateX(10px)}75%{transform:translateX(-6px)}}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:20}
+.cast{display:flex;gap:8px;margin-bottom:6px}
+.sc{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-family:system-ui,sans-serif}
+.sc svg{display:block;margin:0 auto 6px}
+.sc b{display:block;font-size:13px;color:var(--gold)}
+.sc span{display:block;font-size:11px;color:var(--mut);line-height:1.3;margin-top:3px}
+.lk{display:flex;align-items:center;gap:12px}
+.talk{display:flex;gap:12px;align-items:flex-start}
+.talk svg{flex:none;border:1px solid var(--gold);border-radius:14px}
+.bub{flex:1;min-width:0}
+.q{display:block;font-size:16px;line-height:1.45;font-style:italic;min-height:1.45em}
+.note{display:block;margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);font:12.5px/1.4 system-ui,sans-serif;color:var(--neon)}
+.chip b svg,.grid .h b svg{display:block;margin:0 auto}
+#app{position:relative;z-index:1}
+.cast{display:grid;grid-template-columns:repeat(3,1fr)}
+.sc{animation:pop .45s both}
+.sc svg{animation:br 3.4s ease-in-out infinite}
+.sc:nth-child(2) svg{animation-delay:-1s}.sc:nth-child(3) svg{animation-delay:-2s}.sc:nth-child(4) svg{animation-delay:-.5s}.sc:nth-child(5) svg{animation-delay:-1.7s}
+@keyframes br{50%{transform:translateY(-3px) scale(1.04)}}
+.talk.speaking svg{animation:spk .22s ease-in-out infinite}
+@keyframes spk{50%{transform:translateY(-3px) rotate(-3deg)}}
+.clue.locked{animation:glow 2.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 16px #35f2d030;border-color:#35f2d0}}
+.tab.on{animation:tin .3s ease-out}
+@keyframes tin{from{opacity:0;transform:translateX(14px)}}
+.grid button{transition:background .2s,border-color .2s}
+.grid button.s1{animation:cp1 .25s}.grid button.s2{animation:cp2 .3s}
+@keyframes cp1{50%{transform:scale(1.2) rotate(-6deg)}}
+@keyframes cp2{50%{transform:scale(1.25) rotate(6deg)}}
+.accuse:not(:disabled){animation:pulse 2.2s infinite}
+@keyframes pulse{50%{box-shadow:0 6px 30px #e8b84a99}}
+.chip{min-width:0;font-size:12px;transition:transform .15s}.chip.sel{transform:translateY(-3px)}
+.lv{margin-bottom:10px}
+.grid.n4 .h,.grid.n5 .h{font-size:10px}
+@media(prefers-reduced-motion:reduce){.sc,.sc svg,.clue.locked,.accuse,.tab.on{animation:none!important}}
+.modal.help{max-height:88vh;overflow-y:auto;text-align:left}
+.modal.help h2{text-align:center}
+.modal.help h3{font:700 14px system-ui,sans-serif;color:var(--neon);margin:16px 0 4px}
+.modal.help p,.modal.help li{font:14px/1.5 system-ui,sans-serif;margin:4px 0}
+.modal.help ul,.modal.help ol{padding-left:20px;margin:4px 0}
+.hb{margin-top:10px}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0b10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Valdemar">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<div id="app">
+<header>
+<div><h1>🕯️ Mansión Valdemar</h1><small id="meta"></small></div>
+<div style="display:flex;gap:8px"><button class="btn" id="helpBtn" aria-label="Ayuda">❓</button><button class="btn" id="newBtn">Nuevo caso</button></div>
+</header>
+<main>
+<section class="tab on" id="t0">
+<div class="intro">Anoche asesinaron al señor Valdemar. Hay tres sospechosos, tres armas y tres estancias. Toca cada pista para investigar y deduce la verdad.</div>
+<div class="gt" style="margin-top:0">Los sospechosos</div><div class="cast" id="cast"></div><div class="gt">Pistas</div><div id="clues"></div>
+</section>
+<section class="tab" id="t1">
+<p class="hint">Toca una casilla para alternar: vacía → ❌ descartado → ✔️ confirmado. Cada tabla cruza dos categorías y solo una pareja es cierta.</p>
+<div id="grids"></div>
+</section>
+<section class="tab" id="t2">
+<div class="row"><div class="lbl">¿Quién fue?</div><div class="chips" id="cS"></div></div>
+<div class="row"><div class="lbl">¿Con qué arma?</div><div class="chips" id="cW"></div></div>
+<div class="row"><div class="lbl">¿Dónde ocurrió?</div><div class="chips" id="cP"></div></div>
+<button class="accuse" id="acc" disabled>PRESENTAR ACUSACIÓN</button>
+<div class="stat" id="stat"></div>
+</section>
+</main>
+<nav>
+<button class="on" data-t="0"><span>🔎</span>Escena</button>
+<button data-t="1"><span>📓</span>Cuaderno</button>
+<button data-t="2"><span>⚖️</span>Acusación</button>
+</nav>
+</div>
+<div id="ov"><div class="modal" id="modal"></div></div>
+<canvas id="cf"></canvas>
+<script>
+const S=[['Conde','🤵','el'],['Cocinero','👨‍🍳','el'],['Botones','🛎️','el']];
+const W=[['Veneno','☠️','el'],['Cuchillo','🔪','el'],['Pistola','🔫','la']];
+const P=[['Biblioteca','📚','la'],['Cocina','🍳','la'],['Jardín','🌳','el']];
+S.push(['Doctora','🩺','la'],['Chófer','🚗','el']);
+W.push(['Cuerda','🪢','la'],['Candelabro','🕯️','el']);
+P.push(['Bodega','🍷','la'],['Salón','🛋️','el']);
+const CATS=[S,W,P];let N=3;
+const INS=['Examiné la escena con lupa.','Mis hombres peinaron la zona.','Tras horas de análisis, concluyo:','Los peritos lo confirman:','Aquí hay algo que no cuadra.'];
+const BIO=[['Conde de Valdemar','Heredero arrogante con deudas de juego.'],['Cocinero','Veinte años en la casa. Carácter áspero.'],['Botones','Joven y nervioso. Lo ve todo.'],['Doctora','Médica de la familia. Fría y precisa.'],['Chófer','Callado. Siempre cerca de la puerta.']];
+const D=[
+{alibi:()=>'¿Yo, un asesino? Qué vulgaridad, inspector. Mis modales no lo permitirían.',place:j=>`Brindé a solas ${en(j)} toda la noche. Pregunte a quien guste, inspector.`,weapon:j=>`Jamás tocaría ${nm(W,j)}. Es indigno de un caballero.`,protest:'Sus conclusiones son ridículas, inspector.'},
+{alibi:()=>'Yo cocino, no mato. Si no me cree, pruebe mi guiso y hablamos.',place:j=>`Yo estuve ${en(j)}, como siempre. De ahí no me muevo.`,weapon:j=>`¿Con ${nm(W,j)}? Ni cerca. Eso no entra en mi oficio.`,protest:'Se equivoca, inspector. Eso no se sostiene.'},
+{alibi:()=>'¡Y-yo no fui! Se lo juro, inspector, yo solo llevo las maletas.',place:j=>`Estaba ${en(j)}, se lo juro. ¡Alguien me vio!`,weapon:j=>`¡Nunca he usado ${nm(W,j)}! Ni sé cómo se maneja.`,protest:'N-no, inspector... eso no puede ser cierto.'},
+{alibi:()=>'He visto cosas peores que usted, inspector. No fui yo, y puedo demostrarlo.',place:j=>`Estuve ${en(j)} toda la noche, ordenando mis notas.`,weapon:j=>`Yo salvo vidas, inspector. No toco ${nm(W,j)}.`,protest:'Su diagnóstico es erróneo, inspector.'},
+{alibi:()=>'Yo solo conduzco, jefe. A mí no me meta en líos.',place:j=>`Me quedé ${en(j)}, fumando y esperando órdenes.`,weapon:j=>`¿${cap(nm(W,j))}? Yo no me ensucio con eso, jefe.`,protest:'Se está equivocando, jefe.'}
+];
+function portrait(i,s=48){
+ const R=[
+ {bg:'#1d1a2b',body:'<path d="M8 64Q32 44 56 64Z" fill="#2a2440"/><path d="M26 52l6 8 6-8" fill="#f4f1ea"/>',det:'<circle cx="37" cy="37" r="4.5" fill="none" stroke="#e8b84a" stroke-width="1.2"/><path d="M41 40q3 6 1 12" stroke="#e8b84a" fill="none" stroke-width=".8"/><path d="M24 44Q28 41 32 44Q36 41 40 44Q36 47 32 45Q28 47 24 44Z" fill="#cfcfd8"/>',hat:'<rect x="21" y="9" width="22" height="17" rx="2" fill="#15131f"/><rect x="21" y="19" width="22" height="3.5" fill="#e8b84a"/><rect x="15" y="25" width="34" height="4" rx="2" fill="#15131f"/>'},
+ {bg:'#2a1f1a',body:'<path d="M8 64Q32 44 56 64Z" fill="#f4f1ea"/><circle cx="32" cy="57" r="1.3" fill="#999"/>',det:'<circle cx="23" cy="43" r="2.6" fill="#e59a8a" opacity=".6"/><circle cx="41" cy="43" r="2.6" fill="#e59a8a" opacity=".6"/><path d="M24 34l6 -1.5M34 32.5l6 1.5" stroke="#4a2f1a" stroke-width="2"/><path d="M23 45Q28 41 32 44Q36 41 41 45Q36 49 32 46Q28 49 23 45Z" fill="#4a2f1a"/>',hat:'<circle cx="22" cy="18" r="8" fill="#fff"/><circle cx="32" cy="14" r="9" fill="#fff"/><circle cx="42" cy="18" r="8" fill="#fff"/><rect x="21" y="20" width="22" height="9" fill="#fff"/>'},
+ {bg:'#18222b',body:'<path d="M8 64Q32 44 56 64Z" fill="#8f1d33"/><circle cx="32" cy="57" r="1.5" fill="#e8b84a"/>',det:'<circle cx="27" cy="37" r="3" fill="#fff"/><circle cx="37" cy="37" r="3" fill="#fff"/><circle cx="27" cy="37" r="1.4" fill="#222"/><circle cx="37" cy="37" r="1.4" fill="#222"/><ellipse cx="32" cy="45" rx="2" ry="2.5" fill="#7a2d2d"/><path d="M47 30q-3 5 0 7q3 -2 0 -7z" fill="#7dd3fc"/>',hat:'<rect x="21" y="14" width="22" height="12" rx="3" fill="#b3263e"/><circle cx="32" cy="12" r="2" fill="#e8b84a"/>'}
+
+ ,{bg:'#1c2a2a',body:'<path d="M8 64Q32 44 56 64Z" fill="#e8f1f1"/><path d="M26 50q6 12 12 0" stroke="#35f2d0" fill="none" stroke-width="1.5"/>',det:'<circle cx="27" cy="37" r="4.5" fill="none" stroke="#35f2d0" stroke-width="1.2"/><circle cx="37" cy="37" r="4.5" fill="none" stroke="#35f2d0" stroke-width="1.2"/><path d="M28 45q4 3 8 0" stroke="#a5503f" fill="none" stroke-width="1.4"/>',hat:'<path d="M17 40Q14 14 32 15Q50 14 47 40Q45 27 32 27Q19 27 17 40Z" fill="#5a3320"/><circle cx="32" cy="12" r="5" fill="#5a3320"/>'},
+ {bg:'#20241c',body:'<path d="M8 64Q32 44 56 64Z" fill="#2f3b2a"/><path d="M26 52l6 6 6-6" fill="#cfd6c4"/>',det:'<path d="M22 44Q32 56 42 44Q32 50 22 44Z" fill="#6b5a4a" opacity=".6"/><path d="M28 46h8" stroke="#7a2d2d" stroke-width="1.4"/>',hat:'<path d="M17 30Q32 12 47 30Z" fill="#46566a"/><rect x="15" y="28" width="34" height="3.5" rx="1.5" fill="#2e3a4a"/>'},
+ {bg:'#222630',body:'<path d="M8 64Q32 44 56 64Z" fill="#6b5a3a"/><path d="M26 52l6 10 6-10" fill="#f4f1ea"/>',det:'<path d="M26 45h12" stroke="#7a2d2d" stroke-width="1.4"/><path d="M23 33l6-1.5M35 31.5l6 1.5" stroke="#3a2a1a" stroke-width="1.6"/>',hat:'<ellipse cx="32" cy="27" rx="19" ry="4.5" fill="#3b3226"/><path d="M21 27Q22 11 32 11Q42 11 43 27Z" fill="#4a4030"/><rect x="21" y="21" width="22" height="3.5" fill="#e8b84a"/>'}
+ ][i];
+ return `<svg viewBox="0 0 64 64" width="${s}" height="${s}" role="img" aria-label="${(S[i]||['Inspector'])[0]}"><rect width="64" height="64" rx="14" fill="${R.bg}"/>${R.body}<circle cx="32" cy="38" r="14" fill="#e7c9a5"/><circle cx="27" cy="37" r="1.8" fill="#222"/><circle cx="37" cy="37" r="1.8" fill="#222"/>${R.det}${R.hat}</svg>`;
+}
+const ic=(cat,i,s=30)=>cat==0?portrait(i,s):CATS[cat][i][1];
+function renderCast(){
+ document.getElementById('cast').innerHTML=S.slice(0,N).map((x,i)=>`<div class="sc">${portrait(i,58)}<b>${x[0]}</b><span>${BIO[i][1]}</span></div>`).join('');
+}
+function typeIn(i){
+ const q=document.querySelector('#c'+i+' .q');if(!q)return;
+ const full=q.dataset.t,tk=q.closest('.talk');if(tk)tk.classList.add('speaking');q.textContent='';let n=0;
+ const iv=setInterval(()=>{q.textContent=full.slice(0,++n);if(n%3==0)beep(180+Math.random()*60,.02,'square');if(n>=full.length){clearInterval(iv);if(tk)tk.classList.remove('speaking')}},22);
+}
+const nm=(a,i)=>a[i][2]+' '+a[i][0];
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const en=i=>'en '+nm(P,i);
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+let COMBOS=[];
+
+let sol,clues,revealed,grids,sel,attempts,solved=0,caseNo=0,helps=0,elim=new Set();
+
+function buildPool(){
+  const pool=[];
+  const add=(text,f,label,who,s,say)=>pool.push({text,f,label,who,s,say});
+  for(let i=0;i<N;i++){
+    add(`El culpable no usó ${nm(W,i)}.`,(c,w,p)=>w!=i,`Investigar: ${W[i][0]}`,'🔍 Objeto');
+    add(`El crimen no ocurrió ${en(i)}.`,(c,w,p)=>p!=i,`Investigar: ${P[i][0]}`,'🔍 Escena');
+    add(`${cap(nm(S,i))} tiene una coartada de hierro: no es el culpable.`,(c,w,p)=>c!=i,`Interrogar: ${S[i][0]}`,'🗣️ '+S[i][0],i,D[i].alibi());
+    for(let j=0;j<N;j++){
+      add(`El crimen cometido ${en(j)} no fue con ${nm(W,i)}.`,(c,w,p)=>!(p==j&&w==i),`Investigar: ${P[j][0]}`,'🔍 Escena');
+      add(`Testigos juran que ${nm(S,i)} pasó toda la noche ${en(j)}.`,(c,w,p)=>c!=i||p==j,`Interrogar: ${S[i][0]}`,'🗣️ '+S[i][0],i,D[i].place(j));
+      add(`${cap(nm(S,i))} jamás habría usado ${nm(W,j)}, según su historial.`,(c,w,p)=>c!=i||w!=j,`Interrogar: ${S[i][0]}`,'🗣️ '+S[i][0],i,D[i].weapon(j));
+      add(`Si el arma fue ${nm(W,i)}, el crimen ocurrió ${en(j)}.`,(c,w,p)=>w!=i||p==j,`Investigar: ${W[i][0]}`,'🔍 Objeto');
+    }
+  }
+  for(let a=0;a<N;a++)for(let b=a+1;b<N;b++){
+    add(`El crimen no ocurrió ni ${en(a)} ni ${en(b)}.`,(c,w,p)=>p!=a&&p!=b,`Investigar: ${P[a][0]} y ${P[b][0]}`,'🔍 Escena');
+    add(`No se usó ni ${nm(W,a)} ni ${nm(W,b)}.`,(c,w,p)=>w!=a&&w!=b,`Investigar: ${W[a][0]} y ${W[b][0]}`,'🔍 Objeto');
+    add(`El culpable es ${nm(S,a)} o ${nm(S,b)}.`,(c,w,p)=>c==a||c==b,'Revisar el expediente','🔍 Expediente');
+  }
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    add(`O se usó ${nm(W,i)}, o el crimen ocurrió ${en(j)}.`,(c,w,p)=>w==i||p==j,`Investigar: ${W[i][0]}`,'🔍 Objeto');
+    add(`Si el culpable es ${nm(S,i)}, el arma fue ${nm(W,j)}.`,(c,w,p)=>c!=i||w==j,'Revisar el expediente','🔍 Expediente');
+  }
+  return pool;
+}
+
+function newCase(){
+  caseNo++;
+  COMBOS=[];for(let c=0;c<N;c++)for(let w=0;w<N;w++)for(let p=0;p<N;p++)COMBOS.push([c,w,p]);sol={c:rnd(N),w:rnd(N),p:rnd(N)};
+  const pool=shuffle(buildPool().filter(k=>k.f(sol.c,sol.w,sol.p)));
+  let cand=COMBOS.slice(),chosen=[];
+  for(const k of pool){
+    if(cand.length==1)break;
+    const nc=cand.filter(x=>k.f(...x));
+    if(nc.length<cand.length){chosen.push(k);cand=nc}
+  }
+  const count=set=>COMBOS.filter(x=>set.every(k=>k.f(...x))).length;
+  for(const k of shuffle(chosen)){
+    const rest=chosen.filter(z=>z!==k);
+    if(rest.length>=4&&count(rest)==1)chosen=rest;
+  }
+  const extra=shuffle(pool.filter(k=>!chosen.includes(k)));
+  while(chosen.length<N+5&&extra.length)chosen.push(extra.pop());
+  clues=shuffle(chosen);
+  revealed=new Set();
+  grids=[0,1,2].map(()=>Array(N*N).fill(0));
+  sel=[null,null,null];attempts=0;helps=0;elim=new Set();
+  renderAll();show(0);
+}
+
+function renderClues(){
+  const el=document.getElementById('clues');el.innerHTML='';
+  clues.forEach((k,i)=>{
+    const b=document.createElement('button');
+    if(revealed.has(i)){b.id='c'+i;b.className='clue open';b.innerHTML=k.s!==undefined?`<div class="talk">${portrait(k.s,54)}<div class="bub"><span class="who">${S[k.s][0]} responde</span><span class="q" data-t="«${k.say}»">«${k.say}»</span><span class="note">📋 Anotado: ${k.text}</span></div></div>`:`<div class="talk">${portrait(5,54)}<div class="bub"><span class="who">Inspector Vega anota</span><span class="q" data-t="${INS[(i+caseNo)%INS.length]} ${k.text}">${INS[(i+caseNo)%INS.length]} ${k.text}</span></div></div>`}
+    else{b.id='c'+i;b.className='clue locked';if(k.s!==undefined)b.innerHTML=`<span class="lk">${portrait(k.s,40)}<span>Interrogar a ${S[k.s][0]}</span></span>`;else b.textContent='🔍 '+k.label;b.onclick=()=>{revealed.add(i);beep(520,.08);renderClues();renderMeta();typeIn(i)}}
+    el.appendChild(b);
+  });
+}
+function renderMeta(){document.getElementById('meta').textContent=`Caso nº ${caseNo} · ${N}×${N} · Pistas: ${revealed.size}/${clues.length}`}
+
+const PAIRS=[[0,1,'Sospechoso × Arma'],[0,2,'Sospechoso × Lugar'],[1,2,'Arma × Lugar']];
+const SYM=['','❌','✔️'];
+function renderGrids(){
+  const el=document.getElementById('grids');el.innerHTML='';
+  PAIRS.forEach(([a,b,title],g)=>{
+    const t=document.createElement('div');t.className='gt';t.textContent=title;el.appendChild(t);
+    const d=document.createElement('div');d.className='grid n'+N;d.style.gridTemplateColumns=`1.25fr repeat(${N},1fr)`;
+    d.appendChild(document.createElement('div'));
+    CATS[b].slice(0,N).forEach((x,xi)=>{const h=document.createElement('div');h.className='h';h.innerHTML=`<b>${ic(b,xi)}</b>${x[0]}`;d.appendChild(h)});
+    CATS[a].slice(0,N).forEach((r,i)=>{
+      const h=document.createElement('div');h.className='h';h.innerHTML=`<b>${ic(a,i)}</b>${r[0]}`;d.appendChild(h);
+      for(let j=0;j<N;j++){
+        const k=i*N+j,c=document.createElement('button');
+        c.className='s'+grids[g][k];c.textContent=SYM[grids[g][k]];
+        c.setAttribute('aria-label',`${r[0]} y ${CATS[b][j][0]}`);
+        c.onclick=()=>{grids[g][k]=(grids[g][k]+1)%3;c.className='s'+grids[g][k];c.textContent=SYM[grids[g][k]];beep(300+grids[g][k]*150,.04)};
+        d.appendChild(c);
+      }
+    });
+    el.appendChild(d);
+  });
+}
+
+function renderChips(){
+  [['cS',S,0],['cW',W,1],['cP',P,2]].forEach(([id,arr,ix])=>{
+    const el=document.getElementById(id);el.innerHTML='';
+    arr.slice(0,N).forEach((x,i)=>{
+      const b=document.createElement('button');b.className='chip'+(sel[ix]===i?' sel':'');
+      b.innerHTML=`<b>${ic(ix,i,46)}</b>${x[0]}`;
+      b.onclick=()=>{sel[ix]=i;beep(440,.04);renderChips()};
+      el.appendChild(b);
+    });
+  });
+  document.getElementById('acc').disabled=sel.includes(null);
+  document.getElementById('stat').textContent=`Acusaciones falladas: ${attempts} · Casos resueltos: ${solved} · Ayudas: ${helps}`;
+}
+
+function renderAll(){renderCast();renderClues();renderMeta();renderGrids();renderChips()}
+function show(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i==n));
+  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('on',i==n));
+  document.querySelector('main').scrollTop=0;
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(+b.dataset.t));
+
+/* Sonido */
+let ac;
+function beep(f,d,type='sine',delay=0){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+delay;
+    o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);
+  }catch(e){}
+}
+
+/* Modal */
+function modal(html,bad){
+  const m=document.getElementById('modal');m.className='modal'+(bad?' bad':'');m.innerHTML=html;
+  document.getElementById('ov').classList.add('on');
+}
+function closeModal(){document.getElementById('ov').classList.remove('on')}
+
+document.getElementById('acc').onclick=()=>{
+  if(sel.includes(null))return;
+  if(sel[0]==sol.c&&sel[1]==sol.w&&sel[2]==sol.p){
+    solved++;
+    [523,659,784,1047].forEach((f,i)=>beep(f,.25,'triangle',i*.12));
+    modal(`<div style="display:flex;justify-content:center;gap:10px;align-items:center"><span class="big" style="font-size:44px">🏆</span>${portrait(sol.c,80)}</div><h2>¡Caso resuelto!</h2><p>${cap(nm(S,sol.c))} cometió el crimen con ${nm(W,sol.w)} ${en(sol.p)}. Excelente deducción, detective.${helps?` Ayudas usadas: ${helps}.`:''}</p><button class="btn" id="nx">Siguiente caso</button>`,false);
+    document.getElementById('nx').onclick=()=>{closeModal();clearConfetti();newCase()};
+    confetti();
+  }else{
+    attempts++;
+    beep(150,.35,'sawtooth');
+    modal(`<div style="display:flex;justify-content:center">${portrait(sel[0],72)}</div><h2>Deducción errónea</h2><p style="margin-bottom:4px"><i>«${D[sel[0]].protest}»</i><br>— ${S[sel[0]][0]}</p><p>Alguna de tus tres conclusiones no encaja con las pruebas. Revisa las pistas y tu cuaderno antes de volver a acusar.</p><button class="btn" id="bk">Seguir investigando</button>`,true);
+    document.getElementById('bk').onclick=()=>{closeModal();renderChips();show(0)};
+    renderChips();
+  }
+};
+document.getElementById('newBtn').onclick=()=>{
+  modal(`<div class="big">📂</div><h2>¿Abrir un caso nuevo?</h2><p>Elige la dificultad. Perderás el progreso de este caso.</p><button class="btn lv" data-n="3">Fácil · 3×3</button><button class="btn lv" data-n="4">Normal · 4×4</button><button class="btn lv" data-n="5">Experto · 5×5</button><p style="margin:12px 0 0"><a href="#" id="no" style="color:var(--mut)">Cancelar</a></p>`,false);
+  document.querySelectorAll('.lv').forEach(b=>b.onclick=()=>{N=+b.dataset.n;closeModal();newCase()});
+  document.getElementById('no').onclick=e=>{e.preventDefault();closeModal()};
+};
+
+/* Confeti */
+const cv=document.getElementById('cf'),cx=cv.getContext('2d');let parts=[],raf;
+function confetti(){
+  cv.width=innerWidth;cv.height=innerHeight;
+  parts=Array.from({length:140},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,s:5+Math.random()*7,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:['#e8b84a','#35f2d0','#ff4d6d','#ece6d6'][rnd(4)]}));
+  cancelAnimationFrame(raf);
+  (function loop(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore()});
+    parts=parts.filter(p=>p.y<cv.height+20);
+    if(parts.length)raf=requestAnimationFrame(loop);else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+function clearConfetti(){cancelAnimationFrame(raf);parts=[];cx.clearRect(0,0,cv.width,cv.height)}
+
+const HELP=`<h2>📖 Cómo se juega</h2>
+<h3>🎯 Objetivo</h3><p>Han asesinado a alguien en la mansión. Debes descubrir <b>quién</b> fue, <b>con qué arma</b> y <b>en qué lugar</b>. Cada caso es nuevo y siempre se resuelve con lógica: nunca hace falta adivinar.</p>
+<h3>🔎 Escena</h3><p>Aquí están las pistas, ocultas al principio. Toca una para investigar. Las que llevan un retrato son <b>testimonios</b> de un sospechoso; las demás las dicta el <b>Inspector Vega</b>. Todas las pistas son verdaderas.</p>
+<h3>📓 Cuaderno</h3><p>Tres tablas cruzan las categorías: Sospechoso × Arma, Sospechoso × Lugar y Arma × Lugar. Toca una casilla para cambiarla: vacía → ❌ (descartado) → ✔️ (confirmado). En cada tabla solo hay una casilla verdadera, la de la solución. Si tachas todas menos una, esa es la buena.</p>
+<h3>🧠 Tipos de pistas</h3><ul>
+<li><b>Exclusión:</b> «El culpable no usó X» o «no ocurrió en Z». Marca ❌.</li>
+<li><b>Coartada:</b> «Y tiene una coartada»: Y no es el culpable.</li>
+<li><b>Testimonio de lugar:</b> «Y pasó toda la noche en Z». Si Y es el culpable, el crimen fue en Z. Y si el crimen no fue en Z, Y queda descartado.</li>
+<li><b>Testimonio de arma:</b> «Y jamás usaría X»: si Y es el culpable, no usó X.</li>
+<li><b>«O»:</b> «El culpable es A o B» o «O se usó X, o fue en Z»: al menos una de las dos cosas es cierta.</li>
+<li><b>«Si… entonces…»:</b> «Si el arma fue X, el crimen ocurrió en Z». Úsala también al revés: si el crimen no fue en Z, el arma no pudo ser X.</li></ul>
+<h3>⚖️ Acusación</h3><p>Elige culpable, arma y lugar y pulsa <b>Presentar acusación</b>. Si fallas, el juego no dice qué parte está mal: vuelve al Cuaderno y revisa. Los fallos se cuentan.</p>
+<h3>🎚️ Dificultad</h3><p>En <b>Nuevo caso</b> eliges Fácil (3×3), Normal (4×4) o Experto (5×5): más sospechosos, armas y lugares, y más pistas.</p>
+<h3>💡 Método recomendado</h3><ol><li>Revela todas las pistas.</li><li>Marca ❌ lo que digan con claridad.</li><li>Combina las pistas «O» y «Si… entonces» con lo ya descartado.</li><li>Cuando en una tabla solo quede una casilla sin tachar, márcala ✔️.</li><li>Acusa cuando estés seguro.</li></ol>
+<h3>🆘 Ayudas</h3><p>Si te atascas, el Inspector puede <b>descartar un elemento</b> inocente (y lo tacha por ti en el Cuaderno) o <b>revisar tu cuaderno</b> y decirte cuántas marcas son incorrectas, sin decir cuáles. Se cuentan al ganar.</p>`;
+function openHelp(){
+  modal(HELP+`<button class="btn hb" id="hd">🔦 Descartar un elemento</button><button class="btn hb" id="hk">🧐 Revisar mi cuaderno</button><button class="btn hb" id="hc" style="background:none;color:var(--mut);border-color:var(--line)">Cerrar</button>`,false);
+  const m=document.getElementById('modal');m.classList.add('help');m.scrollTop=0;
+  document.getElementById('hc').onclick=closeModal;
+  document.getElementById('hd').onclick=helpEliminate;
+  document.getElementById('hk').onclick=helpCheck;
+}
+function helpMsg(e,t){modal(`<div class="big">${e}</div><h2>Ayuda del Inspector</h2><p>${t}</p><button class="btn" id="ok">Entendido</button>`,false);document.getElementById('ok').onclick=closeModal}
+function helpEliminate(){
+  const list=[];
+  [[0,sol.c],[1,sol.w],[2,sol.p]].forEach(([cat,right])=>{for(let k=0;k<N;k++)if(k!=right&&!elim.has(cat+':'+k))list.push([cat,k])});
+  if(!list.length){helpMsg('✅','Ya has descartado todo lo que no es. Lo que queda en cada categoría es la solución.');return}
+  const [cat,k]=list[rnd(list.length)];elim.add(cat+':'+k);helps++;
+  PAIRS.forEach(([a,b],g)=>{for(let x=0;x<N;x++){
+    if(a==cat){const i=k*N+x;if(!grids[g][i])grids[g][i]=1}
+    if(b==cat){const i=x*N+k;if(!grids[g][i])grids[g][i]=1}
+  }});
+  renderGrids();renderChips();
+  helpMsg('🔦',`Descartado: <b>${cap(nm(CATS[cat],k))}</b> no forma parte del crimen. Lo he tachado por ti en el Cuaderno.`);
+}
+function helpCheck(){
+  const ans=[sol.c,sol.w,sol.p];let bad=0;
+  PAIRS.forEach(([a,b],g)=>{for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    const v=grids[g][i*N+j],truth=(i==ans[a]&&j==ans[b]);
+    if((v==1&&truth)||(v==2&&!truth))bad++;
+  }});
+  helps++;renderChips();
+  helpMsg(bad?'🧐':'✅',bad?`Hay <b>${bad}</b> marca${bad>1?'s':''} incorrecta${bad>1?'s':''} en tu cuaderno. Revísalas con las pistas.`:'Todo lo que has marcado hasta ahora es correcto. Vas por buen camino.');
+}
+document.getElementById('helpBtn').onclick=openHelp;
+newCase();
+</script>
+<script>
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
